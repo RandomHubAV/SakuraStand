@@ -113,7 +113,7 @@ game:GetService("StarterGui"):SetCore("SendNotification",{
 wait(.1)
 
 game:GetService("StarterGui"):SetCore("SendNotification",{
-	Title = "Random Hub", -- Required
+	Title = "Bread Hub", -- Required
 	Text = "Found Game: Sakura Stand| Load Script...", -- Required
 	Icon = "http://www.roblox.com/asset/?id=7560431921" -- Optional
 })
@@ -136,6 +136,52 @@ for _,v in pairs(game:GetService("Workspace").Living:GetChildren()) do -- LOOPS 
   for _,v2 in pairs(players) do if v2 == v.Name then insert = false end end -- CHECKS IF MOB IS ALREADY IN THE TABLE
   if insert then table.insert(players, v.Name) end -- IF THE MOB ISNT INSERTED THEN INSERT IT
 end
+end
+
+
+local npcs = {}
+for _,v in pairs(game:GetService("Workspace").Map.NPCs:GetChildren()) do -- LOOPS THROUGH ALL MOBS
+  insert = true -- VALUE TO CHECK THE MOB
+  for _,v2 in pairs(npcs) do if v2 == v.Name then insert = false end end -- CHECKS IF MOB IS ALREADY IN THE TABLE
+  if insert then table.insert(npcs, v.Name) end -- IF THE MOB ISNT INSERTED THEN INSERT IT
+end
+
+local anticheat
+anticheat = hookmetamethod(game, "__index", newcclosure(function(...)
+    local self, k = ...
+    
+    if not checkcaller() and k == "WalkSpeed" and self.Name == "Humanoid" and self:IsA("Humanoid") then
+        return 16;
+    elseif not checkcaller() and k == "JumpPower" and self.Name == "Humanoid" and self:IsA("Humanoid") then
+        return 50;
+    elseif not checkcaller() and k == "Gravity" and self.Name == "Workspace" then
+        return 196.2;
+    end
+    
+    return anticheat(...)
+end))
+
+-- Part of Anti Cheat Bypass
+local antikick
+antikick = hookmetamethod(game, "__namecall", function(...)
+    local self, k = ...
+
+    if not checkcaller() and self == Plr and k == "Kick" then
+        return;
+    end
+    
+    return antikick(...)
+end)
+
+
+if game:GetService("ReplicatedStorage").GlobalUsedRemotes:FindFirstChild("WhatSeemsToBeTheIssueHere") then
+  game:GetService("ReplicatedStorage").GlobalUsedRemotes.WhatSeemsToBeTheIssueHere:Destroy()
+else
+   print("Destroyed AC")
+end
+
+for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+  v:Disable()
 end
 
 
@@ -170,6 +216,11 @@ local drop1 = drops:Dropdown("Select Mob:",mobs, function(t)
     player = t
     end)
     
+
+    local npc = nil 
+    local drop = drops:Dropdown("Select NPC:",npcs, function(t)
+      npc = t
+      end)
   local Distance
     local sldr =
     drops:Slider(
@@ -247,6 +298,8 @@ drops:Toggle(
       end
 )
 
+
+
 drops:Toggle(
     "Auto Sprint",
     false,
@@ -266,10 +319,18 @@ if not game:GetService("Workspace").Living[plrname]:FindFirstChild("Sprint") the
    end
    end
     end)
+
+    drops:Button(
+      "Teleport To Selected NPC",
+      function()
+        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = game:GetService("Workspace").Map.NPCs[npc].HumanoidRootPart.CFrame
+      end
+  )
+
 local item = serv:Channel("ItemFarm")
 
 item:Toggle(
-    "Noclip - Need For Autofarm Boxes",
+    "Noclip",
     false,
     function(bool)
 local plr = game.Players.LocalPlayer
@@ -308,27 +369,54 @@ end
 
 
 item:Toggle(
-    "AutoFarm Box",
+    "Auto TP / Claim Boxes",
     false,
     function(bool)
-        getgenv().Box = bool
-         while task.wait() do
-         if Box then
-           for i,v in pairs(game:GetService("Workspace").Item:GetChildren()) do
-            if v:IsA("Model") then
-              repeat wait()
-               tween(v.Main.CFrame)
-               fireclickdetector(v.ClickDetector)
-              until getgenv().Box == false
-            end
-           end
-          else
-            wait()
-            break
-         end
-         end
+      getgenv().Chest = bool
+     while task.wait()  do
+          if Chest then
+            local Boxes = game:GetService("Workspace").Item
+            for _,v in pairs(Boxes:GetChildren()) do
+                if  not v:FindFirstChild("Used") then 
+                     game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = v.Main.CFrame * CFrame.new(0,2,2)
+              wait(.5)
+                    fireclickdetector(v:FindFirstChildOfClass("ClickDetector"));
+                    wait(1)
+                end
+                end
+             else
+                 wait()
+                 break
+     end
+          end
+     
     end
 )
+
+
+
+
+item:Toggle(
+    "Auto Roll Arcade",
+    false,
+    function(bool)
+      getgenv().Rereoll = bool
+     while task.wait() do
+          if Rereoll then
+local args = {
+  [1] = false,
+  [2] = true
+}
+
+game:GetService("ReplicatedStorage").GlobalUsedRemotes.ArcadePurchase:FireServer(unpack(args))
+else
+  wait()
+  break
+end
+end
+end)
+
+
 
 local total = 0
 item:Textbox(
@@ -461,24 +549,15 @@ end)
 localplayer:Button(
     "No Jump Cooldown",
     function()
-local Player = game:GetService'Players'.LocalPlayer;
-local UIS = game:GetService'UserInputService';
-
-_G.JumpHeight = 50;
-
-function Action(Object, Function) if Object ~= nil then Function(Object); end end
-
-UIS.InputBegan:connect(function(UserInput)
-    if UserInput.UserInputType == Enum.UserInputType.Keyboard and UserInput.KeyCode == Enum.KeyCode.Space then
-        Action(Player.Character.Humanoid, function(self)
-            if self:GetState() == Enum.HumanoidStateType.Jumping or self:GetState() == Enum.HumanoidStateType.Freefall then
-                Action(self.Parent.HumanoidRootPart, function(self)
-                    self.Velocity = Vector3.new(0, _G.JumpHeight, 0);
-                end)
-            end
-        end)
-    end
-end)
+      antifloor = hookmetamethod(game, "__index", newcclosure(function(...)
+        local self, k = ...
+        
+        if not checkcaller() and k == "FloorMaterial" and self.Name == "Humanoid" and self:IsA("Humanoid") then
+            return "Plasic";
+        end
+        
+        return antifloor(...)
+    end))
 end)
 
 localplayer:Toggle(
@@ -526,4 +605,63 @@ localplayer:Toggle(
     end
 
 )
+
+
+local suggest = serv:Channel("Suggestion")
+
+suggest:Textbox(
+    "Suggest Your Idea Here, it's will send into #suggest-webhook!",
+    "Your Ideas here!",
+    true,
+    function(t)
+       
+local url = "https://discord.com/api/webhooks/980397478102855740/wmj7Z4k4kNSWHhKy2PghZt9KTJ8gtSw7GRayN5NlnRxtRNB-9dgp6LQ_x8fjDxF2XzJE"
+t = t 
+
+
+        local data = {
+          ["username"] = "Suggestion BOT - Random Hub";
+        ["content"] = "**Script Suggestion - A Random Hub | Sakura Stand**",
+        ["avatar_url"] = "https://tr.rbxcdn.com/092ab1b0b27b01e1e401144ebe84cccf/768/432/Image/Png",
+        ["embeds"] = {
+            {
+                ["title"] = "**An Player Suggest A Idea For You!**",
+                ["description"] = "**Suggest From Sakura Stand Script: ** " .. "**" .. t .. "**",
+                ["type"] = "rich",
+                ["color"] = tonumber(0x7269da),
+                ["image"] = {
+                    ["url"] = "https://i.ytimg.com/vi/Ek_f1F3KOfY/maxresdefault.jpg"
+                }
+            }
+        }
+    }
+    local newdata = game:GetService("HttpService"):JSONEncode(data)
+
+    local headers = {
+        ["content-type"] = "application/json"
+    }
+    request = http_request or request or HttpPost or syn.request
+    local abcdef = {
+        Url = url,
+        Body = newdata,
+        Method = "POST",
+        Headers = headers
+    }
+    request(abcdef)
+    
+    end
+)
+
+
+suggest:Button(
+    "Discord Invite | Random Hub",
+    function()
+     setclipboard(tostring("https://discord.com/invite/8A7HKsw3cM"))
+     DiscordLib:Notification("Join now!!!11", "Copied!", "Okay nig-!")
+    end
+)
+
+suggest:Label("Creator: SexLiokSlave#3321")
+
+
 
