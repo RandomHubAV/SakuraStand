@@ -372,6 +372,7 @@ item:Toggle(
     "Auto TP / Claim Boxes",
     false,
     function(bool)
+      DiscordLib:Notification("Before Use! - SexLioKSlave#3321", "For Some Newest Spawned Chest Take Around 3-4 second To Collect It!", "Okay nig-!")
       getgenv().Chest = bool
      while task.wait()  do
           if Chest then
@@ -662,6 +663,4 @@ suggest:Button(
 )
 
 suggest:Label("Creator: SexLiokSlave#3321")
-
-
 
