@@ -161,6 +161,8 @@ anticheat = hookmetamethod(game, "__index", newcclosure(function(...)
     return anticheat(...)
 end))
 
+local Plr = game.Players.LocalPlayer
+
 -- Part of Anti Cheat Bypass
 local antikick
 antikick = hookmetamethod(game, "__namecall", function(...)
@@ -419,6 +421,28 @@ end)
 
 
 
+
+item:Toggle(
+    "Auto Sell Items",
+    false,
+    function(bool)
+        print(bool)
+         getgenv().AutoSell = bool 
+          while task.wait() do 
+             if AutoSell then
+              local Backpack = game:GetService("Players").LocalPlayer.Backpack
+              for _,v in pairs(Backpack:GetChildren()) do
+                game:GetService("ReplicatedStorage").GlobalUsedRemotes.SellItem:FireServer(v.Name)
+              end
+            else
+              wait()
+              break
+            end
+          end
+    end
+)
+
+
 local total = 0
 item:Textbox(
     "Ammount To Buy:",
@@ -663,4 +687,57 @@ suggest:Button(
 )
 
 suggest:Label("Creator: SexLiokSlave#3321")
+
+local storage = serv:Channel("Storage")
+
+
+storage:Button(
+    "Slot 1 | Stand: " .. game:GetService("Players").LocalPlayer.Data.Slot1.Value,
+    function()
+      game:GetService("ReplicatedStorage").StorageRemote.Slot1:FireServer()
+
+    end
+)
+
+storage:Button(
+    "Slot 2 | Stand: " .. game:GetService("Players").LocalPlayer.Data.Slot2.Value,
+    function()
+      game:GetService("ReplicatedStorage").StorageRemote.Slot2:FireServer()
+
+    end
+)
+
+storage:Button(
+    "Slot 3 | Stand: " .. game:GetService("Players").LocalPlayer.Data.Slot3.Value,
+    function()
+      game:GetService("ReplicatedStorage").StorageRemote.Slot3:FireServer()
+
+    end
+)
+
+storage:Button(
+    "Slot 4 | Stand: " .. game:GetService("Players").LocalPlayer.Data.Slot4.Value,
+    function()
+      game:GetService("ReplicatedStorage").StorageRemote.Slot4:FireServer()
+
+    end
+)
+
+storage:Label("Robux Storage")
+
+storage:Button(
+    "Slot 5 | Stand: " .. game:GetService("Players").LocalPlayer.Data.Slot5.Value,
+    function()
+      game:GetService("ReplicatedStorage").StorageRemote.Slot5:FireServer()
+
+    end
+)
+
+storage:Button(
+    "Slot 6 | Stand: " .. game:GetService("Players").LocalPlayer.Data.Slot6.Value,
+    function()
+      game:GetService("ReplicatedStorage").StorageRemote.Slot6:FireServer()
+
+    end
+)
 
